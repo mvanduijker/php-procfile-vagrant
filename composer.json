@@ -1,0 +1,6 @@
+{
+	"require-dev" : {
+		"heroku/heroku-buildpack-php": "dev-master",
+        "vlucas/phpdotenv": "~1.1"
+	}
+}
