@@ -24,6 +24,15 @@ if ! grep -q "elasticsearch" /etc/apt/sources.list /etc/apt/sources.list.d/*; th
   add-apt-repository "deb http://packages.elasticsearch.org/elasticsearch/1.4/debian stable main"
 fi
 
+if ! grep -q "pgdg" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+  sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+fi
+
+if ! grep -q "hhvm" /etc/apt/sources.list /etc/apt/sources.list.d/*; then
+  sudo apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0x5a16e7281be7a449
+  sudo add-apt-repository 'deb http://dl.hhvm.com/ubuntu trusty main'
+fi
+
 # Update system
 apt-get -y update
 apt-get -y upgrade
@@ -38,6 +47,7 @@ if [ ! -d /var/lib/mysql ]; then
   apt-get -y install mysql-client mysql-server
 
   sed -i "s/bind-address\s*=\s*127.0.0.1/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
+  sed -i 's/\#general_log/general_log/g' /etc/mysql/my.cnf
 
   # Allow root access from any host
   echo "GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'root' WITH GRANT OPTION" | mysql -u root --password=root
@@ -85,7 +95,10 @@ appender:
       type: consolePattern
       conversionPattern: "[%d{ISO8601}][%-5p][%-25c] %m%n"' > /usr/share/elasticsearch/config/logging.yml
 
-# install nginx
+# Install Postgres
+apt-get install postgresql-9.4
+
+# Install nginx
 apt-get install -y nginx
 
 # install php stuff
@@ -99,6 +112,9 @@ fi
 if [ ! -f /usr/sbin/php-fpm ]; then
   ln -s /usr/sbin/php5-fpm /usr/sbin/php-fpm
 fi
+
+# install hhvm
+apt-get install -y hhvm
 
 # We don't want to run the following services (handled by foreman)
 service nginx stop
@@ -152,6 +168,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   
   # Hack so we can run nginx (stores pid file in /run othewise permission error), maybe do this on system level (alias?)
   config.exec.commands 'foreman', prepend: 'sudo chmod 777 /run &&'
+  config.exec.commands 'start', prepend: 'sudo chmod 777 /run && foreman start #' # a way to alias start
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
