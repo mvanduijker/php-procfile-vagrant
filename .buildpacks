@@ -1,0 +1,4 @@
+https://github.com/heroku/heroku-buildpack-php.git#v66
+https://github.com/heroku/heroku-buildpack-nodejs.git#v71
+https://github.com/heroku/heroku-buildpack-ruby.git#v134
+
