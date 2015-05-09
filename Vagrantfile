@@ -168,7 +168,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   
   # Hack so we can run nginx (stores pid file in /run othewise permission error), maybe do this on system level (alias?)
   config.exec.commands 'foreman', prepend: 'sudo chmod 777 /run &&'
-  config.exec.commands 'start', prepend: 'sudo chmod 777 /run && foreman start #' # a way to alias start
+  config.exec.commands 'start', prepend: 'sudo chmod 777 /run && foreman start -f Procfile.local start #' # a way to alias start
 
   # Disable automatic box update checking. If you disable this, then
   # boxes will only be checked for updates when the user runs
